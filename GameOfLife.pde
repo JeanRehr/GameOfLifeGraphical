@@ -32,8 +32,8 @@ void drawArray(int[][] m) { // Desenha os quadrados na tela.
 
 void execCycle() { // Executa um ciclo.
     int state = 0;
-    for (inti = 0; i < matrix.length; i++) {
-        for (intj = 0; j < matrix.length; j++) {
+    for (int i = 0; i < matrix.length; i++) {
+        for (int j = 0; j < matrix.length; j++) {
             state = matrix[i][j];
             int viz = contaViz(matrix, i, j);
             if (state == 0 && viz == 3) {
@@ -118,15 +118,15 @@ void mouseDragged() {
     try {
         if (mouseX < 0)
             mouseX = 0;
-        elseif (mouseY < 0)
+        else if (mouseY < 0)
             mouseY = 0;
-        elseif (mouseX > width)
+        else if (mouseX > width)
             mouseX = width;
-        elseif (mouseY > height)
+        else if (mouseY > height)
             mouseY = height;
-        elseif (matrix[selectX][selectY] == 0 && mouseButton == LEFT)
+        else if (matrix[selectX][selectY] == 0 && mouseButton == LEFT)
             matrix[selectX][selectY] = 1;
-        elseif (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
+        else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
             matrix[selectX][selectY] = 0;
     } catch(ArrayIndexOutOfBoundsException e) {
         e.printStackTrace();
@@ -136,10 +136,8 @@ void mouseDragged() {
 void mousePressed() {
     int selectX = mouseX / space;
     int selectY = mouseY / space;
-    if (matrix[selectX][selectY] == 0 && mouseButton == LEFT) {
+    if (matrix[selectX][selectY] == 0 && mouseButton == LEFT)
         matrix[selectX][selectY] = 1;
-        println(selectX, selectY);
-    }
     else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
         matrix[selectX][selectY] = 0;
 }
