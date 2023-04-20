@@ -79,9 +79,10 @@ void pausedText() {
     text("Press Enter to continue, R to Restart.", width / 2, 50);
     text("Press B to not wrap around borders.", width / 2, 75);
     textSize(24);
-    text("Seta pra cima: aumentavelocidade.", width / 2, 100);
+    text("Seta pra cima: aumenta velocidade.", width / 2, 100);
     text("Seta pra baixo: diminui velocidade.", width / 2, 125);
-    text("Z e X e C: presets.", width / 2, 150);
+    text("Left mouse button create, right button destroy.", width / 2, 150);
+    text("Z e X e C: presets.", width / 2, 175);
 }
 
 void settings() {
