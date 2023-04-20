@@ -3,6 +3,8 @@
 * Simula Conway's Game of Life (https://en.wikipedia.org/wiki/Conway's_Game_of_Life).
 */
 
+// need to refactor this urgently
+
 int col = 100; // 2d array
 int lin = 100;
 int[][] matrix, matrix2;
