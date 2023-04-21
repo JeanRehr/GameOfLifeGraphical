@@ -1,110 +1,38 @@
 /*
-* Aplicacao feita na linguagem Processing(Java) por Jean Rehr.
-* Simula Conway's Game of Life (https://en.wikipedia.org/wiki/Conway's_Game_of_Life).
+* Made by Jean Rehr with help from the coding train.
+* Conway's Game of Life (https://en.wikipedia.org/wiki/Conway's_Game_of_Life).
 */
-
-// need to refactor this urgently
 
 int col = 100; // 2d array
 int lin = 100;
 int[][] matrix, matrix2;
-
-int width = 1000; // Tamanho da tela
-int height = 1000; // preferencia que seja divisivel por lin e col.
-int space;  // Para desenhar o array bidimensional.
-int frameRate;  // Velocidade da Animacao.
+int width = 1000;
+int height = 1000;
+int space;  // to draw 2d array
+int frameRate;
 boolean paused;
-boolean bordas = false;
-
-void drawArray(int[][] m) { // Desenha os quadrados na tela.
-    for (int i = 0; i < m.length; i++) {
-        for (int j = 0; j < m.length; j++) {
-            if (m[i][j] == 1)
-                fill(255, 255, 255); // quadrados
-            else
-                fill(0, 0, 0); // celulas
-            stroke(125, 125, 125); // linhas
-            rect(i * space, j * space, space, space);
-        }
-    }
-}
-
-void execCycle() { // Executa um ciclo.
-    int state = 0;
-    for (int i = 0; i < matrix.length; i++) {
-        for (int j = 0; j < matrix.length; j++) {
-            state = matrix[i][j];
-            int viz = contaViz(matrix, i, j);
-            if (state == 0 && viz == 3) {
-                matrix2[i][j] = 1;
-            } else if (viz < 2 || viz > 3 && state == 1) {
-                matrix2[i][j] = 0;
-            } else {
-                matrix2[i][j] = state;
-            }
-        }
-    }
-    for (int i = 0; i < matrix.length; i++) { // pass from old to new matrix
-        for (int j = 0; j < matrix.length; j++) {
-            if (bordas) { // Tecla 'B', nao deixa atravessar as bordas.
-                if (i >= matrix.length - 1 || j >= matrix.length - 1)
-                     matrix2[i][j] = 0;
-            }
-            
-            matrix[i][j] = matrix2[i][j];
-        }
-    }
-}
-
-int contaViz(int[][]m, int x, int y) { // Conta as celulas adjacentes,
-    int viz = 0;        // Atravessando as bordas.
-    for (int i = -1; i < 2; i++) {
-        for (int j = -1; j < 2; j++) {
-            int col = (x + i + m.length) % m.length;
-            int lin = (y + j + m.length) % m.length;
-            viz += m[col][lin];
-        }
-    }
-    
-    viz -= m[x][y];
-    return viz;
-}
-
-void pausedText() {
-    fill(255, 0, 0);
-    textAlign(CENTER);
-    textSize(24);
-    text("Paused!", width / 2, 25);
-    text("Press Enter to continue, R to Restart.", width / 2, 50);
-    text("Press B to not wrap around borders.", width / 2, 75);
-    textSize(24);
-    text("Seta pra cima: aumenta velocidade.", width / 2, 100);
-    text("Seta pra baixo: diminui velocidade.", width / 2, 125);
-    text("Left mouse button create, right button destroy.", width / 2, 150);
-    text("Z e X e C: presets.", width / 2, 175);
-}
+boolean borders = false;
 
 void settings() {
-    size(width, height); // Tamanho da tela, preferencia que seja divisivel por lin e col.
+    size(width, height); // screen size, should be divisible by col and line.
 }
 
-// Events.
 void setup() {
     background(0);
-    frameRate = 10;
+    frameRate = 20;
     paused = true;
     
     matrix = new int[col][lin];
     matrix2 = new int[col][lin];
     
-    space = min(height, width) / min(col, lin); // Array em todo o espaco da tela.
+    space = min(height, width) / min(col, lin); // to draw array in all screen
 }
 
 void draw() {
     frameRate(frameRate);
     background(0);
     drawArray(matrix);
-    if (bordas) {
+    if (borders) { // draws a line if borders is active
         stroke(0, 255, 0);
         line(space / 2, space / 2, width - space / 2, space / 2);
         line(width - space / 2, space / 2, width - space / 2, height - space / 2);
@@ -112,29 +40,100 @@ void draw() {
         line(space / 2, space / 2, space / 2, height - space / 2);
     } 
     if (!paused) {
-        execCycle();
+        execCycle(matrix, matrix2);
     } else {
         pausedText();
     }
 }
 
+void drawArray(int[][] m) {
+    for (int i = 0; i < m.length; i++) {
+        for (int j = 0; j < m.length; j++) {
+            if (m[i][j] == 1) {
+                fill(255, 255, 255); // rects
+            } else {
+                fill(0, 0, 0); // cells
+            }
+
+            stroke(125, 125, 125); // lines
+            rect(i * space, j * space, space, space);
+        }
+    }
+}
+
+int countNeigh(int[][]m, int x, int y) { // counts each adjacent cell
+    int neighbours = 0;                         // through the borders
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            int col = (x + i + m.length) % m.length;
+            int lin = (y + j + m.length) % m.length;
+            neighbours += m[col][lin];
+        }
+    }
+    
+    neighbours -= m[x][y];
+    return neighbours;
+}
+
+void execCycle(int[][] m, int[][] m2) {
+    //int state;
+    for (int i = 0; i < m.length; i++) {
+        for (int j = 0; j < m.length; j++) {
+            //state = m[i][j]; // stores the state of each cell
+            if (m[i][j] == 0 && countNeigh(m, i, j) == 3) { // reproduction
+                m2[i][j] = 1;
+            } else if (countNeigh(m, i, j) < 2 || countNeigh(m, i, j) > 3 && m[i][j] == 1) { // overpopulation
+                m2[i][j] = 0;
+            } else {
+                m2[i][j] = m[i][j]; // stays as is
+            }
+            
+            if (borders) { // 'b', doesn't let go through the borders
+                if (i >= m.length - 1 || j >= m.length - 1) {
+                     m2[i][j] = 0;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < m.length; i++) {
+        for (int j = 0; j < m.length; j++) {
+            m[i][j] = m2[i][j]; // transfer the state from a matrix to another
+        }
+    }
+}
+
+void pausedText() {
+    fill(0 , 255, 0);
+    textAlign(CENTER);
+    textSize(24);
+    text("Paused!", width / 2, 25);
+    text("Press Enter to continue, R to Restart.", width / 2, 50);
+    text("Press B to not wrap around borders.", width / 2, 75);
+    textSize(24);
+    text("Up arrow: faster.", width / 2, 100);
+    text("Down arrow: slower.", width / 2, 125);
+    text("Left mouse button create, right button destroy.", width / 2, 150);
+    text("Z, X, C: presets.", width / 2, 175);
+}
+
+// user input
 void mouseDragged() {
     int selectX = mouseX / space;
     int selectY = mouseY / space;
-    try {
-        if (mouseX < 0)
+    try { // array out of bounds if dragging past window border
+        if (mouseX < 0) {
             mouseX = 0;
-        else if (mouseY < 0)
+        } else if (mouseY < 0) {
             mouseY = 0;
-        else if (mouseX > width)
+        } else if (mouseX > width) {
             mouseX = width;
-        else if (mouseY > height)
+        } else if (mouseY > height) {
             mouseY = height;
-        else if (matrix[selectX][selectY] == 0 && mouseButton == LEFT) {
+        } else if (matrix[selectX][selectY] == 0 && mouseButton == LEFT) {
             matrix[selectX][selectY] = 1;
-        }
-        else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
+        } else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT) {
             matrix[selectX][selectY] = 0;
+        }
     } catch(ArrayIndexOutOfBoundsException e) {
         e.printStackTrace();
     }
@@ -145,22 +144,27 @@ void mousePressed() {
     int selectY = mouseY / space;
     if (matrix[selectX][selectY] == 0 && mouseButton == LEFT) {
         matrix[selectX][selectY] = 1;
-    }
-    else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
+    } else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT) {
         matrix[selectX][selectY] = 0;
+    }
 }
 
 void keyPressed() {
-    if (key == CODED && keyCode == UP) // Aumentar e diminuir a velocidade
+    if (key == CODED && keyCode == UP) {
         frameRate++;
-    else if (key == CODED && keyCode == DOWN && frameRate > 1)
+    } else if (key == CODED && keyCode == DOWN && frameRate > 1) {
         frameRate--;
+    }
     
     if (key == ENTER || key == RETURN) { // Pause
         paused = !paused;
-    } else if (key == ESC) { // Exit
+    }
+    
+    if (key == ESC) { // Exit
         exit();
-    } else if (key == CODED && keyCode == 'r' || keyCode == 'R') { // Restart
+    }
+    
+    if (key == CODED && keyCode == 'r' || keyCode == 'R') { // Restart
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix.length; j++) {
                 matrix[i][j] = 0;
@@ -170,7 +174,7 @@ void keyPressed() {
     }
     
     if (key == CODED && keyCode == 'b' || keyCode == 'B') {
-        bordas = !bordas;
+        borders = !borders;
     }
     
     //Presets
@@ -182,6 +186,7 @@ void keyPressed() {
         matrix[1][2] = 1;
         matrix[0][0] = 1;
     }
+    
     if (key == CODED && keyCode == 'x' || keyCode == 'X') {
         // Galaxy
         if (col > 30 && lin > 30) {
@@ -221,46 +226,9 @@ void keyPressed() {
             matrix[col / 2 - 2][lin / 2 - 4] = 1;
             matrix[col / 2 - 2][lin / 2 - 5] = 1;
             matrix[col / 2 - 1][lin / 2 - 5] = 1;
-        } else {
-            matrix[7][8] = 1; // left
-            matrix[9][8] = 1; // right
-            matrix[8][7] = 1; // up
-            matrix[8][9] = 1; // down
-            matrix[6][7] = 1; // up-left
-            matrix[5][7] = 1;
-            matrix[5][6] = 1;
-            matrix[5][5] = 1;
-            matrix[6][5] = 1;
-            matrix[6][4] = 1;
-            matrix[6][3] = 1;
-            matrix[7][3] = 1;
-            matrix[9][6] = 1; // up-right
-            matrix[9][5] = 1;
-            matrix[10][5] = 1;
-            matrix[11][5] = 1;
-            matrix[11][6] = 1;
-            matrix[12][6] = 1;
-            matrix[12][6] = 1;
-            matrix[13][6] = 1;
-            matrix[13][7] = 1;
-            matrix[10][9] = 1; // down-right
-            matrix[11][9] = 1;
-            matrix[11][10] = 1;
-            matrix[11][11] = 1;
-            matrix[10][11] = 1;
-            matrix[10][12] = 1;
-            matrix[10][13] = 1;
-            matrix[9][13] = 1;
-            matrix[7][10] = 1; // down-left
-            matrix[7][11] = 1;
-            matrix[6][11] = 1;
-            matrix[5][11] = 1;
-            matrix[5][10] = 1;
-            matrix[4][10] = 1;
-            matrix[3][10] = 1;
-            matrix[3][9] = 1; // 18 - 3
         }
     }
+    
     if (key == CODED && keyCode == 'c' || keyCode == 'C') {
         // Glider-gun
         if (col > 39 && lin > 12) {
