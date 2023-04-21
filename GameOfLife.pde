@@ -23,7 +23,6 @@ void drawArray(int[][] m) { // Desenha os quadrados na tela.
                 fill(255, 255, 255); // quadrados
             else
                 fill(0, 0, 0); // celulas
-            
             stroke(125, 125, 125); // linhas
             rect(i * space, j * space, space, space);
         }
@@ -45,11 +44,11 @@ void execCycle() { // Executa um ciclo.
             }
         }
     }
-    for (int i = 0; i < matrix.length; i++) {
+    for (int i = 0; i < matrix.length; i++) { // pass from old to new matrix
         for (int j = 0; j < matrix.length; j++) {
             if (bordas) { // Tecla 'B', nao deixa atravessar as bordas.
                 if (i >= matrix.length - 1 || j >= matrix.length - 1)
-                    matrix2[i][j] = 0;
+                     matrix2[i][j] = 0;
             }
             
             matrix[i][j] = matrix2[i][j];
@@ -105,6 +104,13 @@ void draw() {
     frameRate(frameRate);
     background(0);
     drawArray(matrix);
+    if (bordas) {
+        stroke(0, 255, 0);
+        line(space / 2, space / 2, width - space / 2, space / 2);
+        line(width - space / 2, space / 2, width - space / 2, height - space / 2);
+        line(width - space / 2, height - space / 2, space / 2, height - space / 2);
+        line(space / 2, space / 2, space / 2, height - space / 2);
+    } 
     if (!paused) {
         execCycle();
     } else {
@@ -124,8 +130,9 @@ void mouseDragged() {
             mouseX = width;
         else if (mouseY > height)
             mouseY = height;
-        else if (matrix[selectX][selectY] == 0 && mouseButton == LEFT)
+        else if (matrix[selectX][selectY] == 0 && mouseButton == LEFT) {
             matrix[selectX][selectY] = 1;
+        }
         else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
             matrix[selectX][selectY] = 0;
     } catch(ArrayIndexOutOfBoundsException e) {
@@ -136,8 +143,9 @@ void mouseDragged() {
 void mousePressed() {
     int selectX = mouseX / space;
     int selectY = mouseY / space;
-    if (matrix[selectX][selectY] == 0 && mouseButton == LEFT)
+    if (matrix[selectX][selectY] == 0 && mouseButton == LEFT) {
         matrix[selectX][selectY] = 1;
+    }
     else if (matrix[selectX][selectY] == 1 && mouseButton == RIGHT)
         matrix[selectX][selectY] = 0;
 }
